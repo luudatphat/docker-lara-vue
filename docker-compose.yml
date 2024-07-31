@@ -1,0 +1,70 @@
+version: "3.9"
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    container_name: operation
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www/
+    volumes:
+      - ./operation-lumen:/var/www
+    networks:
+      - operation-lumen
+    # depends_on:
+    #   - db
+
+  node:
+    build:
+      context: ./operation-vue/
+      dockerfile: ../Dockerfile.node
+    container_name: operation-vue
+    ports:
+      - 8080:8080
+    networks:
+      - operation-lumen
+
+  db:
+    image: postgres
+    container_name: postgres
+    restart: unless-stopped
+    expose:
+     - "5432"
+    ports:
+      - "5439:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 1
+      POSTGRES_DB: socialhead_operate_lumen
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    networks:
+      - operation-lumen
+    
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - 6388:6379
+    networks:
+      - operation-lumen
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - 8555:80
+    volumes:
+      - ./operation-lumen:/var/www
+      - ./nginx:/etc/nginx/conf.d/
+    networks:
+      - operation-lumen
+    # depends_on:
+    #   - app
+
+networks:
+  operation-lumen:
+    driver: bridge
