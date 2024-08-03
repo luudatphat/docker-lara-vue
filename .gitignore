@@ -1,0 +1,3 @@
+sohead_operate_lumen/*
+postgres/*
+!.gitignore

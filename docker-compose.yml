@@ -10,6 +10,8 @@ services:
     working_dir: /var/www/
     volumes:
       - ./operation-lumen:/var/www
+      - ./app/supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
+    # command: /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
     networks:
       - operation-lumen
     # depends_on:
@@ -30,7 +32,7 @@ services:
     container_name: postgres
     restart: unless-stopped
     expose:
-     - "5432"
+      - "5432"
     ports:
       - "5439:5432"
     environment:
@@ -41,7 +43,6 @@ services:
       - ./postgres:/var/lib/postgresql/data
     networks:
       - operation-lumen
-    
 
   redis:
     image: redis:alpine
@@ -64,6 +65,17 @@ services:
       - operation-lumen
     # depends_on:
     #   - app
+
+  # supervisor:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: supervisor
+  #   command: supervisord -c /var/www/supervisord.conf
+  #   # volumes:
+  #   #   - ./app/supervisord.conf:/etc/supervisor/conf.d
+  #   networks:
+  #     - operation-lumen
 
 networks:
   operation-lumen:
